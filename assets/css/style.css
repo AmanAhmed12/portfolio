@@ -1,15 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    --bg-deep: #020617;
-    --bg-card: rgba(15, 23, 42, 0.7);
+    --bg-deep: #000000;
+    --bg-card: rgba(15, 23, 42, 0.4);
     --accent-primary: #6366f1;
-    --accent-secondary: #8b5cf6;
-    --accent-glow: rgba(99, 102, 241, 0.15);
-    --text-primary: #f8fafc;
+    --accent-secondary: #a855f7;
+    --accent-glow: rgba(99, 102, 241, 0.25);
+    --text-primary: #ffffff;
     --text-secondary: #94a3b8;
     --border-glass: rgba(255, 255, 255, 0.08);
-    --border-hover: rgba(99, 102, 241, 0.3);
+    --border-hover: rgba(255, 255, 255, 0.2);
 }
 
 * {
@@ -22,7 +22,7 @@
 body {
     background-color: var(--bg-deep);
     color: var(--text-primary);
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter', sans-serif;
     line-height: 1.6;
     overflow-x: hidden;
 }
@@ -34,6 +34,7 @@ h4,
 h5,
 h6 {
     color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
 }
