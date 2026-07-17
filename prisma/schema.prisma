@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  name     String?
+}
+
+model Profile {
+  id          String @id @default(uuid())
+  name        String
+  title       String
+  company     String
+  bio         String
+  gpa         String
+  gpaDesc     String
+  cloudTitle  String
+  cloudDesc   String
+}
+
+model SkillCategory {
+  id     String  @id @default(uuid())
+  title  String
+  icon   String
+  skills Skill[]
+}
+
+model Skill {
+  id         String        @id @default(uuid())
+  name       String
+  categoryId String
+  category   SkillCategory @relation(fields: [categoryId], references: [id])
+}
+
+model Journey {
+  id       String   @id @default(uuid())
+  type     String   // 'EXPERIENCE', 'EDUCATION', 'ACCOLADE'
+  title    String
+  subtitle String
+  date     String?
+  points   String[]
+}
+
+model Project {
+  id          String  @id @default(uuid())
+  title       String
+  description String
+  link        String?
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
