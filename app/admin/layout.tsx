@@ -5,6 +5,8 @@ import Link from "next/link";
 import Script from "next/script";
 import { Suspense } from "react";
 import Snackbar from "@/components/Snackbar";
+import LogoutButton from "./components/LogoutButton";
+import ClientAuthGuard from "./components/ClientAuthGuard";
 import "./admin.css";
 
 export default async function AdminLayout({
@@ -20,6 +22,7 @@ export default async function AdminLayout({
 
   return (
     <>
+      <ClientAuthGuard />
       <Script src="https://unpkg.com/@phosphor-icons/web" strategy="lazyOnload" />
       <div className="admin-layout">
         <aside className="admin-sidebar">
@@ -48,9 +51,7 @@ export default async function AdminLayout({
             <Link href="/" className="admin-nav-link" target="_blank">
               <i className="ph ph-arrow-square-out"></i> View Site
             </Link>
-            <a href="/api/auth/signout" className="admin-nav-link" style={{color: 'var(--admin-danger)'}}>
-              <i className="ph ph-sign-out"></i> Sign Out
-            </a>
+            <LogoutButton />
           </div>
         </aside>
         <main className="admin-content">
@@ -63,3 +64,5 @@ export default async function AdminLayout({
     </>
   );
 }
+
+// Triggering recompile
