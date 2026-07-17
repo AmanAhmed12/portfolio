@@ -18,9 +18,9 @@ export function SkillCategoryClientItem({
   children
 }: {
   category: Category;
-  editAction: (formData: FormData) => Promise<AdminActionResult>;
-  deleteAction: (formData: FormData) => Promise<AdminActionResult>;
-  addSkillAction: (formData: FormData) => Promise<AdminActionResult>;
+  editAction: (formData: FormData) => Promise<any>;
+  deleteAction: (formData: FormData) => Promise<any>;
+  addSkillAction: (formData: FormData) => Promise<any>;
   children: React.ReactNode;
 }) {
   const [isEditing, setIsEditing] = useState(false);

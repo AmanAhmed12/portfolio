@@ -19,8 +19,8 @@ export function JourneyClientItem({
   editAction,
 }: {
   entry: Journey;
-  deleteAction: (formData: FormData) => Promise<AdminActionResult>;
-  editAction: (formData: FormData) => Promise<AdminActionResult>;
+  deleteAction: (formData: FormData) => Promise<any>;
+  editAction: (formData: FormData) => Promise<any>;
 }) {
   const [isEditing, setIsEditing] = useState(false);
 

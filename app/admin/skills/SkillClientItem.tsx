@@ -18,8 +18,8 @@ export function SkillClientItem({
 }: {
   skill: Skill;
   categories: { id: string; title: string }[];
-  deleteAction: (formData: FormData) => Promise<AdminActionResult>;
-  editAction: (formData: FormData) => Promise<AdminActionResult>;
+  deleteAction: (formData: FormData) => Promise<any>;
+  editAction: (formData: FormData) => Promise<any>;
 }) {
   const [isEditing, setIsEditing] = useState(false);
 
