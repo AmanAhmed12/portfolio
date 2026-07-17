@@ -4,9 +4,11 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { AdminActionForm } from "@/components/AdminActionForm";
 import type { AdminActionResult } from "@/lib/admin-action";
+import { JourneyClientItem } from "./JourneyClientItem";
 
 export default async function JourneyAdminPage() {
-  const journeys = await prisma.journey.findMany({ orderBy: { type: 'asc' } });
+  // Sort by latest records first according to createdAt
+  const journeys = await prisma.journey.findMany({ orderBy: { createdAt: 'desc' } });
 
   async function addJourney(formData: FormData): Promise<AdminActionResult> {
     "use server";
@@ -27,6 +29,29 @@ export default async function JourneyAdminPage() {
     revalidatePath("/admin/journey");
     revalidatePath("/");
     return { redirectTo: "/admin/journey?toast=Journey+entry+added+successfully&toastType=success" };
+  }
+
+  async function editJourney(formData: FormData): Promise<AdminActionResult> {
+    "use server";
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return { redirectTo: "/api/auth/signin?callbackUrl=/admin/journey" };
+    }
+
+    const id = formData.get("id") as string;
+    await prisma.journey.update({
+      where: { id },
+      data: {
+        type: formData.get("type") as string,
+        title: formData.get("title") as string,
+        subtitle: formData.get("subtitle") as string,
+        date: formData.get("date") as string,
+        points: (formData.get("points") as string).split('\n').filter(p => p.trim() !== ''),
+      }
+    });
+    revalidatePath("/admin/journey");
+    revalidatePath("/");
+    return { redirectTo: "/admin/journey?toast=Entry+updated+successfully&toastType=success" };
   }
 
   async function deleteJourney(formData: FormData): Promise<AdminActionResult> {
@@ -96,21 +121,7 @@ export default async function JourneyAdminPage() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {filtered.map(entry => (
-                    <div key={entry.id} style={{ background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px', position: 'relative' }}>
-                      <AdminActionForm action={deleteJourney} style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
-                        <input type="hidden" name="id" value={entry.id} />
-                        <button type="submit" className="admin-btn-danger" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}>
-                           <i className="ph-bold ph-trash"></i>
-                        </button>
-                      </AdminActionForm>
-                      <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>{entry.title}</h4>
-                      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--admin-text-muted)' }}>{entry.subtitle} &bull; {entry.date}</p>
-                      {entry.points.length > 0 && (
-                        <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.85rem', color: 'var(--admin-text-muted)' }}>
-                          {entry.points.map((p, i) => <li key={i}>{p}</li>)}
-                        </ul>
-                      )}
-                    </div>
+                    <JourneyClientItem key={entry.id} entry={entry as any} deleteAction={deleteJourney} editAction={editJourney} />
                   ))}
                 </div>
               </div>

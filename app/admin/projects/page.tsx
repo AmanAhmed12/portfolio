@@ -4,9 +4,10 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { AdminActionForm } from "@/components/AdminActionForm";
 import type { AdminActionResult } from "@/lib/admin-action";
+import { ProjectClientItem } from "./ProjectClientItem";
 
 export default async function ProjectsAdminPage() {
-  const projects = await prisma.project.findMany();
+  const projects = await prisma.project.findMany({ orderBy: { createdAt: 'desc' } });
 
   async function addProject(formData: FormData): Promise<AdminActionResult> {
     "use server";
@@ -24,7 +25,28 @@ export default async function ProjectsAdminPage() {
     });
     revalidatePath("/admin/projects");
     revalidatePath("/");
-    return { refresh: true };
+    return { refresh: true, redirectTo: "/admin/projects?toast=Project+added+successfully&toastType=success" };
+  }
+
+  async function editProject(formData: FormData): Promise<AdminActionResult> {
+    "use server";
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return { redirectTo: "/api/auth/signin?callbackUrl=/admin/projects" };
+    }
+
+    const id = formData.get("id") as string;
+    await prisma.project.update({
+      where: { id },
+      data: {
+        title: formData.get("title") as string,
+        description: formData.get("description") as string,
+        link: formData.get("link") as string,
+      }
+    });
+    revalidatePath("/admin/projects");
+    revalidatePath("/");
+    return { refresh: true, redirectTo: "/admin/projects?toast=Project+updated+successfully&toastType=success" };
   }
 
   async function deleteProject(formData: FormData): Promise<AdminActionResult> {
@@ -37,7 +59,7 @@ export default async function ProjectsAdminPage() {
     await prisma.project.delete({ where: { id: formData.get("id") as string } });
     revalidatePath("/admin/projects");
     revalidatePath("/");
-    return { refresh: true };
+    return { refresh: true, redirectTo: "/admin/projects?toast=Project+deleted+successfully&toastType=success" };
   }
 
   return (
@@ -73,25 +95,12 @@ export default async function ProjectsAdminPage() {
           <p style={{ color: 'var(--admin-text-muted)' }}>No projects added yet.</p>
         ) : (
           projects.map(project => (
-            <div key={project.id} className="admin-card" style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
-              <AdminActionForm action={deleteProject} style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
-                <input type="hidden" name="id" value={project.id} />
-                <button type="submit" className="admin-btn-danger" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }} title="Delete Project">
-                  <i className="ph-bold ph-trash"></i>
-                </button>
-              </AdminActionForm>
-              
-              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', paddingRight: '2rem' }}>{project.title}</h4>
-              <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.9rem', color: 'var(--admin-text-muted)', flex: 1 }}>{project.description}</p>
-              
-              {project.link ? (
-                <a href={project.link} target="_blank" rel="noreferrer" style={{ color: 'var(--admin-accent)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <i className="ph-bold ph-link"></i> Visit Project
-                </a>
-              ) : (
-                <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.9rem' }}>No link provided</span>
-              )}
-            </div>
+            <ProjectClientItem 
+              key={project.id} 
+              project={project as any} 
+              deleteAction={deleteProject} 
+              editAction={editProject} 
+            />
           ))
         )}
       </div>
