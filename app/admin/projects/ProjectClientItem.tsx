@@ -37,7 +37,13 @@ export function ProjectClientItem({
       </div>
       
       <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', paddingRight: '4rem' }}>{project.title}</h4>
-      <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.9rem', color: 'var(--admin-text-muted)', flex: 1 }}>{project.description}</p>
+      <div style={{ margin: '0 0 1.5rem 0', fontSize: '0.9rem', color: 'var(--admin-text-muted)', flex: 1 }}>
+        <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>
+          {project.description.split('\n').filter(p => p.trim() !== '').map((point, idx) => (
+            <li key={idx} style={{ marginBottom: '0.25rem' }}>{point.trim()}</li>
+          ))}
+        </ul>
+      </div>
       
       {project.link ? (
         <a href={project.link} target="_blank" rel="noreferrer" style={{ color: 'var(--admin-accent)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>

@@ -162,7 +162,13 @@ export default async function Home() {
             {projects.map((project, idx) => (
               <div key={project.id} className="bento-item span-3" data-aos="fade-up" data-aos-delay={idx * 100}>
                 <h4 className="h5">{project.title}</h4>
-                <p className="small opacity-60 mt-2">{project.description}</p>
+                {project.description && (
+                  <ul className="opacity-60 small timeline-list mt-2" style={{ marginBottom: '1rem' }}>
+                    {project.description.split('\n').filter(p => p.trim() !== '').map((point, i) => (
+                      <li key={i}>{point.trim()}</li>
+                    ))}
+                  </ul>
+                )}
                 {project.link && (
                   <a href={project.link} className="indigo small fw-bold mt-auto" target="_blank" rel="noreferrer">
                     VIEW PROJECT <i className="las la-external-link-alt ms-1"></i>
