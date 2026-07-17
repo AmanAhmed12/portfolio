@@ -24,16 +24,19 @@ export function SkillClientItem({
   const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <div className="admin-pill" style={{ position: 'relative' }}>
-      <span style={{ cursor: 'pointer', paddingRight: '0.25rem' }} onClick={() => setIsEditing(true)}>
-        {skill.name}
-      </span>
-      <form action={deleteAction} style={{ display: 'inline' }}>
-        <input type="hidden" name="id" value={skill.id} />
-        <button type="submit" style={{ background: 'none', border: 'none', color: 'var(--admin-danger)', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', display: 'flex', alignItems: 'center' }}>
-          <i className="ph-bold ph-x"></i>
+    <div className="admin-pill" style={{ position: 'relative', paddingRight: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+      <span>{skill.name}</span>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+        <button onClick={() => setIsEditing(true)} style={{ background: 'none', border: 'none', color: 'var(--admin-accent)', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center' }} title="Edit Skill">
+          <i className="ph-bold ph-pencil"></i>
         </button>
-      </form>
+        <form action={deleteAction} style={{ display: 'inline', margin: 0 }}>
+          <input type="hidden" name="id" value={skill.id} />
+          <button type="submit" style={{ background: 'none', border: 'none', color: 'var(--admin-danger)', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center' }} title="Delete Skill">
+            <i className="ph-bold ph-x"></i>
+          </button>
+        </form>
+      </div>
 
       <EditModal isOpen={isEditing} onClose={() => setIsEditing(false)} title="Edit Skill">
         <form action={async (formData) => {

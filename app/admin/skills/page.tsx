@@ -18,15 +18,19 @@ export default async function SkillsAdminPage() {
     const session = await getServerSession(authOptions);
     if (!session) return { redirectTo: "/api/auth/signin?callbackUrl=/admin/skills" };
 
-    await prisma.skillCategory.create({
-      data: {
-        title: formData.get("title") as string,
-        icon: formData.get("icon") as string,
-      }
-    });
-    revalidatePath("/admin/skills");
-    revalidatePath("/");
-    return { redirectTo: "/admin/skills?toast=Category+added+successfully&toastType=success" };
+    try {
+      await prisma.skillCategory.create({
+        data: {
+          title: formData.get("title") as string,
+          icon: formData.get("icon") as string,
+        }
+      });
+      revalidatePath("/admin/skills");
+      revalidatePath("/");
+      return { redirectTo: "/admin/skills?toast=Category+added+successfully&toastType=success" };
+    } catch (error) {
+      return { redirectTo: "/admin/skills?toast=Failed+to+add+category&toastType=error" };
+    }
   }
 
   async function editCategory(formData: FormData): Promise<AdminActionResult> {
@@ -35,16 +39,20 @@ export default async function SkillsAdminPage() {
     if (!session) return { redirectTo: "/api/auth/signin?callbackUrl=/admin/skills" };
 
     const id = formData.get("id") as string;
-    await prisma.skillCategory.update({
-      where: { id },
-      data: {
-        title: formData.get("title") as string,
-        icon: formData.get("icon") as string,
-      }
-    });
-    revalidatePath("/admin/skills");
-    revalidatePath("/");
-    return { redirectTo: "/admin/skills?toast=Category+updated&toastType=success" };
+    try {
+      await prisma.skillCategory.update({
+        where: { id },
+        data: {
+          title: formData.get("title") as string,
+          icon: formData.get("icon") as string,
+        }
+      });
+      revalidatePath("/admin/skills");
+      revalidatePath("/");
+      return { redirectTo: "/admin/skills?toast=Category+updated&toastType=success" };
+    } catch (error) {
+      return { redirectTo: "/admin/skills?toast=Failed+to+update+category&toastType=error" };
+    }
   }
 
   async function deleteCategory(formData: FormData): Promise<AdminActionResult> {
@@ -53,10 +61,14 @@ export default async function SkillsAdminPage() {
     if (!session) return { redirectTo: "/api/auth/signin?callbackUrl=/admin/skills" };
 
     const id = formData.get("id") as string;
-    await prisma.skillCategory.delete({ where: { id } });
-    revalidatePath("/admin/skills");
-    revalidatePath("/");
-    return { redirectTo: "/admin/skills?toast=Category+deleted&toastType=success" };
+    try {
+      await prisma.skillCategory.delete({ where: { id } });
+      revalidatePath("/admin/skills");
+      revalidatePath("/");
+      return { redirectTo: "/admin/skills?toast=Category+deleted&toastType=success" };
+    } catch (error) {
+      return { redirectTo: "/admin/skills?toast=Failed+to+delete+category&toastType=error" };
+    }
   }
 
   async function addSkill(formData: FormData): Promise<AdminActionResult> {
@@ -64,15 +76,19 @@ export default async function SkillsAdminPage() {
     const session = await getServerSession(authOptions);
     if (!session) return { redirectTo: "/api/auth/signin?callbackUrl=/admin/skills" };
 
-    await prisma.skill.create({
-      data: {
-        name: formData.get("name") as string,
-        categoryId: formData.get("categoryId") as string,
-      }
-    });
-    revalidatePath("/admin/skills");
-    revalidatePath("/");
-    return { redirectTo: "/admin/skills?toast=Skill+added+successfully&toastType=success" };
+    try {
+      await prisma.skill.create({
+        data: {
+          name: formData.get("name") as string,
+          categoryId: formData.get("categoryId") as string,
+        }
+      });
+      revalidatePath("/admin/skills");
+      revalidatePath("/");
+      return { redirectTo: "/admin/skills?toast=Skill+added+successfully&toastType=success" };
+    } catch (error) {
+      return { redirectTo: "/admin/skills?toast=Failed+to+add+skill&toastType=error" };
+    }
   }
 
   async function editSkill(formData: FormData): Promise<AdminActionResult> {
@@ -81,16 +97,20 @@ export default async function SkillsAdminPage() {
     if (!session) return { redirectTo: "/api/auth/signin?callbackUrl=/admin/skills" };
 
     const id = formData.get("id") as string;
-    await prisma.skill.update({
-      where: { id },
-      data: {
-        name: formData.get("name") as string,
-        categoryId: formData.get("categoryId") as string,
-      }
-    });
-    revalidatePath("/admin/skills");
-    revalidatePath("/");
-    return { redirectTo: "/admin/skills?toast=Skill+updated&toastType=success" };
+    try {
+      await prisma.skill.update({
+        where: { id },
+        data: {
+          name: formData.get("name") as string,
+          categoryId: formData.get("categoryId") as string,
+        }
+      });
+      revalidatePath("/admin/skills");
+      revalidatePath("/");
+      return { redirectTo: "/admin/skills?toast=Skill+updated&toastType=success" };
+    } catch (error) {
+      return { redirectTo: "/admin/skills?toast=Failed+to+update+skill&toastType=error" };
+    }
   }
 
   async function deleteSkill(formData: FormData): Promise<AdminActionResult> {
@@ -98,10 +118,15 @@ export default async function SkillsAdminPage() {
     const session = await getServerSession(authOptions);
     if (!session) return { redirectTo: "/api/auth/signin?callbackUrl=/admin/skills" };
 
-    await prisma.skill.delete({ where: { id: formData.get("id") as string } });
-    revalidatePath("/admin/skills");
-    revalidatePath("/");
-    return { redirectTo: "/admin/skills?toast=Skill+deleted&toastType=success" };
+    const id = formData.get("id") as string;
+    try {
+      await prisma.skill.delete({ where: { id } });
+      revalidatePath("/admin/skills");
+      revalidatePath("/");
+      return { redirectTo: "/admin/skills?toast=Skill+deleted&toastType=success" };
+    } catch (error) {
+      return { redirectTo: "/admin/skills?toast=Failed+to+delete+skill&toastType=error" };
+    }
   }
 
   // Simplified array of categories for the dropdown in SkillClientItem
@@ -168,6 +193,7 @@ export default async function SkillsAdminPage() {
                 category={cat} 
                 editAction={editCategory} 
                 deleteAction={deleteCategory}
+                addSkillAction={addSkill}
               >
                 {cat.skills.length === 0 ? (
                   <p style={{ color: 'var(--admin-text-muted)', fontSize: '0.9rem' }}>No skills in this category yet.</p>

@@ -14,14 +14,17 @@ export function SkillCategoryClientItem({
   category,
   editAction,
   deleteAction,
+  addSkillAction,
   children
 }: {
   category: Category;
   editAction: (formData: FormData) => Promise<AdminActionResult>;
   deleteAction: (formData: FormData) => Promise<AdminActionResult>;
+  addSkillAction: (formData: FormData) => Promise<AdminActionResult>;
   children: React.ReactNode;
 }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddingSkill, setIsAddingSkill] = useState(false);
 
   return (
     <div className="admin-card" style={{ marginBottom: '1rem' }}>
@@ -30,7 +33,10 @@ export function SkillCategoryClientItem({
           <i className={`las ${category.icon}`}></i> {category.title}
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={() => setIsEditing(true)} className="admin-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', background: 'var(--admin-accent)' }}>
+          <button onClick={() => setIsAddingSkill(true)} className="admin-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', background: 'var(--admin-success)' }} title="Add Skill to Category">
+            <i className="ph-bold ph-plus"></i>
+          </button>
+          <button onClick={() => setIsEditing(true)} className="admin-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', background: 'var(--admin-accent)' }} title="Edit Category">
             <i className="ph-bold ph-pencil"></i>
           </button>
           <form action={deleteAction} style={{ display: 'inline' }}>
@@ -43,6 +49,22 @@ export function SkillCategoryClientItem({
       </div>
       
       {children}
+
+      <EditModal isOpen={isAddingSkill} onClose={() => setIsAddingSkill(false)} title={`Add Skill to ${category.title}`}>
+        <form action={async (formData) => {
+          await addSkillAction(formData);
+          setIsAddingSkill(false);
+        }}>
+          <input type="hidden" name="categoryId" value={category.id} />
+          <div className="admin-form-group">
+            <label className="admin-label">Skill Name</label>
+            <input type="text" name="name" placeholder="e.g. Next.js" required className="admin-input" autoFocus />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button type="submit" className="admin-btn">Add Skill</button>
+          </div>
+        </form>
+      </EditModal>
 
       <EditModal isOpen={isEditing} onClose={() => setIsEditing(false)} title="Edit Skill Category">
         <form action={async (formData) => {
