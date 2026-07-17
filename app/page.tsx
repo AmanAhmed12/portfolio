@@ -14,7 +14,19 @@ export default async function Home() {
 
   const skills = await prisma.skillCategory.findMany({ include: { skills: true } });
 
-  const journeys = await prisma.journey.findMany();
+  const rawJourneys = await prisma.journey.findMany();
+
+  // Helper to extract the highest year from a date string (or 9999 for "Present")
+  const getYear = (dateStr: string | null) => {
+    if (!dateStr) return 0;
+    if (dateStr.toLowerCase().includes('present')) return 9999;
+    const matches = dateStr.match(/\d{4}/g);
+    if (!matches) return 0;
+    return Math.max(...matches.map(Number));
+  };
+
+  const journeys = rawJourneys.sort((a, b) => getYear(b.date) - getYear(a.date));
+
   const experiences = journeys.filter(j => j.type === 'EXPERIENCE');
   const education = journeys.filter(j => j.type === 'EDUCATION');
   const accolades = journeys.filter(j => j.type === 'ACCOLADE');

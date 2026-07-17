@@ -7,8 +7,18 @@ import type { AdminActionResult } from "@/lib/admin-action";
 import { JourneyClientItem } from "./JourneyClientItem";
 
 export default async function JourneyAdminPage() {
-  // Sort by latest records first according to createdAt
-  const journeys = await prisma.journey.findMany({ orderBy: { createdAt: 'desc' } });
+  // Fetch journeys and sort by extracted year from the date string
+  const rawJourneys = await prisma.journey.findMany({ orderBy: { createdAt: 'desc' } });
+  
+  const getYear = (dateStr: string | null) => {
+    if (!dateStr) return 0;
+    if (dateStr.toLowerCase().includes('present')) return 9999;
+    const matches = dateStr.match(/\d{4}/g);
+    if (!matches) return 0;
+    return Math.max(...matches.map(Number));
+  };
+
+  const journeys = rawJourneys.sort((a, b) => getYear(b.date) - getYear(a.date));
 
   async function addJourney(formData: FormData): Promise<AdminActionResult> {
     "use server";
