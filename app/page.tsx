@@ -131,8 +131,14 @@ export default async function Home() {
                   <h6 className="m-0">{edu.title}</h6>
                   <p className="small opacity-60 mt-1">{edu.subtitle}</p>
                   <p className="small indigo fw-bold">{edu.date}</p>
+                  {edu.points.length > 0 && (
+                    <ul className="opacity-60 small timeline-list mt-2">
+                      {edu.points.map((point, i) => <li key={i}>{point}</li>)}
+                    </ul>
+                  )}
                 </div>
               ))}
+              {education.length === 0 && <p className="opacity-60">No education listed.</p>}
             </div>
 
             {/* Accolades */}
