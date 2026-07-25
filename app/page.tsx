@@ -144,13 +144,55 @@ export default async function Home() {
             {/* Accolades */}
             <div className="bento-item span-3" data-aos="fade-up" data-aos-delay="200">
               <h5 className="mb-2 opacity-60">ACCOLADES</h5>
+
               {accolades.map(acc => (
                 <div key={acc.id} className="mb-3">
                   <h6 className="m-0">{acc.title}</h6>
-                  <p className="small opacity-60 mt-1">{acc.subtitle}</p>
-                  <p className="small indigo fw-bold">{acc.date}</p>
+
+                  <p className="small opacity-60 mt-1">
+                    {acc.subtitle}
+                  </p>
+
+                  <p className="small indigo fw-bold">
+                    {acc.date}
+                  </p>
+
+                  {acc.points && acc.points.length > 0 && (
+                    <ul className="opacity-60 small timeline-list mt-2">
+                      {acc.points.map((point, i) => {
+                        const trimmedPoint = point.trim();
+
+                        // Check whether point is a URL
+                        const isLink = /^https?:\/\/\S+$/.test(trimmedPoint);
+
+                        return isLink ? (
+                          <li key={i}>
+                            <a
+                              href={trimmedPoint}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="indigo fw-bold"
+                            >
+                              {trimmedPoint}
+                              <i className="las la-external-link-alt ms-1"></i>
+                            </a>
+                          </li>
+                        ) : (
+                          <li key={i}>
+                            {trimmedPoint}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </div>
               ))}
+
+              {accolades.length === 0 && (
+                <p className="opacity-60">
+                  No accolades listed.
+                </p>
+              )}
             </div>
           </div>
         </section>
