@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import ThemeSwitcher from "../components/ThemeSwitcher";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="/assets/css/style.css" />
       </head>
       <body className={inter.className} data-bs-spy="scroll" data-bs-target=".modern-nav">
+        <ThemeSwitcher />
         {children}
         <Script src="https://unpkg.com/@phosphor-icons/web" strategy="lazyOnload" />
         <Script src="/assets/js/bootstrap.bundle.min.js" strategy="lazyOnload" />
