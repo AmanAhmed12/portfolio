@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 interface ThemeColors {
   [key: string]: string;
@@ -775,33 +776,279 @@ const themes: Theme[] = [
 ];
 
 export default function ThemeSwitcher() {
+  const pathname = usePathname();
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    const savedTheme = localStorage.getItem("selected-theme");
+    let initialIdx = 0;
+    if (savedTheme) {
+      const idx = themes.findIndex((t) => t.name === savedTheme);
+      if (idx !== -1) {
+        initialIdx = idx;
+      }
+    }
+    setCurrentIdx(initialIdx);
+
     // Apply initial theme
-    const initialTheme = themes[0];
-    Object.entries(initialTheme.colors).forEach(([prop, val]) => {
+    const theme = themes[initialIdx];
+    Object.entries(theme.colors).forEach(([prop, val]) => {
       document.documentElement.style.setProperty(prop, val);
     });
-
-    const interval = setInterval(() => {
-      setCurrentIdx((prevIdx) => {
-        let nextIdx;
-        do {
-          nextIdx = Math.floor(Math.random() * themes.length);
-        } while (nextIdx === prevIdx);
-
-        const nextTheme = themes[nextIdx];
-        Object.entries(nextTheme.colors).forEach(([prop, val]) => {
-          document.documentElement.style.setProperty(prop, val);
-        });
-
-        return nextIdx;
-      });
-    }, 15000);
-
-    return () => clearInterval(interval);
   }, []);
 
-  return null; // This component runs entirely in the background
+  const handleThemeChange = (idx: number) => {
+    setCurrentIdx(idx);
+    const theme = themes[idx];
+    Object.entries(theme.colors).forEach(([prop, val]) => {
+      document.documentElement.style.setProperty(prop, val);
+    });
+    localStorage.setItem("selected-theme", theme.name);
+    setIsOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (!mounted || pathname?.startsWith("/admin")) {
+    return null;
+  }
+
+  const currentTheme = themes[currentIdx] || themes[0];
+
+  return (
+    <div className="theme-switcher-container" ref={dropdownRef}>
+      <button
+        className="theme-switcher-btn"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label="Select Theme"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="currentColor"
+          viewBox="0 0 256 256"
+          style={{ marginRight: "8px", color: "var(--accent-primary)" }}
+        >
+          <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM72,112a16,16,0,1,1,16,16A16,16,0,0,1,72,112Zm40-40a16,16,0,1,1,16,16A16,16,0,0,1,112,72Zm56,16a16,16,0,1,1,16-16A16,16,0,0,1,168,88Zm16,56a16,16,0,1,1,16-16A16,16,0,0,1,184,144Z"></path>
+        </svg>
+        <span className="theme-switcher-name">{currentTheme.name}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="12"
+          height="12"
+          fill="currentColor"
+          viewBox="0 0 256 256"
+          className={`chevron-icon ${isOpen ? "open" : ""}`}
+          style={{ marginLeft: "8px", transition: "transform 0.2s ease" }}
+        >
+          <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80a8,8,0,0,1,11.32-11.32L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="theme-dropdown">
+          <div className="theme-dropdown-header">Select Theme</div>
+          <div className="theme-list">
+            {themes.map((theme, idx) => (
+              <button
+                key={theme.name}
+                className={`theme-item ${idx === currentIdx ? "active" : ""}`}
+                onClick={() => handleThemeChange(idx)}
+              >
+                <span
+                  className="theme-color-preview"
+                  style={{
+                    background: `linear-gradient(135deg, ${theme.colors["--accent-primary"]}, ${theme.colors["--bg-deep"]})`,
+                  }}
+                />
+                <span className="theme-item-name">{theme.name}</span>
+                {idx === currentIdx && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    fill="currentColor"
+                    viewBox="0 0 256 256"
+                    className="check-icon"
+                  >
+                    <path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L100,192.69,218.34,74.34a8,8,0,0,1,11.32,11.32Z"></path>
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .theme-switcher-container {
+          position: fixed;
+          top: 28px;
+          right: 32px;
+          z-index: 9999;
+        }
+
+        .theme-switcher-btn {
+          display: flex;
+          align-items: center;
+          background: var(--nav-bg);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid var(--border-glass);
+          color: var(--text-primary);
+          padding: 10px 18px;
+          border-radius: 50px;
+          font-weight: 600;
+          font-size: 0.8rem;
+          letter-spacing: 0.5px;
+          box-shadow: var(--shadow-nav);
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .theme-switcher-btn:hover {
+          border-color: var(--border-hover);
+          transform: translateY(-1px);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), var(--accent-glow);
+        }
+
+        .chevron-icon.open {
+          transform: rotate(180deg);
+        }
+
+        .theme-dropdown {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          margin-top: 10px;
+          width: 240px;
+          background: var(--chat-window-bg);
+          backdrop-filter: blur(28px);
+          -webkit-backdrop-filter: blur(28px);
+          border: 1px solid var(--border-glass);
+          border-radius: 16px;
+          box-shadow: var(--chat-window-shadow);
+          overflow: hidden;
+          animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-8px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        .theme-dropdown-header {
+          padding: 12px 16px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: var(--text-secondary);
+          border-bottom: 1px solid var(--border-glass);
+          background: var(--chat-header-bg);
+        }
+
+        .theme-list {
+          max-height: 320px;
+          overflow-y: auto;
+          padding: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .theme-list::-webkit-scrollbar {
+          width: 4px;
+        }
+        .theme-list::-webkit-scrollbar-thumb {
+          background: var(--border-glass);
+          border-radius: 4px;
+        }
+        .theme-list::-webkit-scrollbar-thumb:hover {
+          background: var(--accent-primary);
+        }
+
+        .theme-item {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          padding: 8px 12px;
+          border: none;
+          background: transparent;
+          color: var(--text-secondary);
+          border-radius: 8px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          text-align: left;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .theme-item:hover {
+          background: var(--btn-glass-bg-hover);
+          color: var(--text-primary);
+        }
+
+        .theme-item.active {
+          color: var(--text-primary);
+          background: var(--btn-glass-bg-hover);
+        }
+
+        .theme-color-preview {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          margin-right: 10px;
+          flex-shrink: 0;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-item-name {
+          flex: 1;
+        }
+
+        .check-icon {
+          color: var(--accent-primary);
+          flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+          .theme-switcher-container {
+            top: unset;
+            bottom: 28px;
+            left: 28px;
+            right: unset;
+          }
+          
+          .theme-dropdown {
+            top: unset;
+            bottom: 100%;
+            left: 0;
+            right: unset;
+            margin-top: 0;
+            margin-bottom: 10px;
+          }
+        }
+      ` }} />
+    </div>
+  );
 }
