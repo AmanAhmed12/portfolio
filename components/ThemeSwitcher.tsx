@@ -1033,19 +1033,19 @@ export default function ThemeSwitcher() {
 
         @media (max-width: 768px) {
           .theme-switcher-container {
-            top: unset;
-            bottom: 28px;
-            left: 28px;
-            right: unset;
+            top: 72px;
+            right: 16px;
+            bottom: unset;
+            left: unset;
           }
           
           .theme-dropdown {
-            top: unset;
-            bottom: 100%;
-            left: 0;
-            right: unset;
-            margin-top: 0;
-            margin-bottom: 10px;
+            top: 100%;
+            bottom: unset;
+            left: unset;
+            right: 0;
+            margin-top: 10px;
+            margin-bottom: 0;
           }
         }
       ` }} />
