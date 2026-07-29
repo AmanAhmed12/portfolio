@@ -409,6 +409,15 @@ footer {
 
     /* ── Card icons ── */
     .card-icon { font-size: 1.6rem; margin-bottom: 0.9rem; }
+
+    /* ── Chatbot window: prevent left overflow ── */
+    .chat-window {
+        width: calc(100% - 24px);
+        right: 12px;
+        left: 12px;
+        bottom: 84px;
+        border-radius: 18px;
+    }
 }
 
 /* --- Small phones: up to 480px --- */
@@ -434,6 +443,7 @@ footer {
     .chat-window {
         width: calc(100% - 24px);
         right: 12px;
+        left: 12px;
         bottom: 84px;
         height: 72vh;
         border-radius: 18px;
